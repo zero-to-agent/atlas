@@ -1,0 +1,12 @@
+.env
+.venv/
+__pycache__/
+*.pyc
+chroma_db/
+atlas_costs.db
+tool_log.jsonl
+*.egg-info/
+eval_results.json
+session.json
+workspace/
+comparison.md
