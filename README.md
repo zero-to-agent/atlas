@@ -1,20 +1,19 @@
-# Atlas — Chapter 10: Multi-Agent Systems
+# Atlas — Chapter 11: Evaluation and Testing
 
 > From **Zero to Agent: From First API Call to Production AI Agents**
 
 ## What Atlas can do at this point
 
-- All capabilities from Chapters 2-9
-- Coordinate three specialized agents: orchestrator, researcher, coder
-- Route tasks to the right specialist with isolated tool access
-- Validate research completeness before handing off to coder
-- Use cheaper models (Haiku) for coordination, capable models (Sonnet) for specialist work
+- All capabilities from Chapters 2-10
+- Run a reproducible eval suite of 20 named cases
+- Assert on tool selection, forbidden tools, and guardrail compliance
+- Gate merges in CI when pass rate drops below 85%
+- Export eval results as JSON artifacts for trending
 
 ## Prerequisites
 
 - Python 3.11+
 - [Anthropic API key](https://console.anthropic.com/)
-- [Tavily API key](https://tavily.com/) (for researcher's web search)
 
 ## Quick Start
 
@@ -23,30 +22,26 @@ python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env       # Add your API keys
-python atlas_multi.py "Find how asyncio.gather works and write a working Python example"
+pytest tests/eval_suite.py -v --min-pass-rate 0.85
 ```
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `atlas_multi.py` | Three-agent system: orchestrator, researcher, coder |
-| `atlas_v8.py` | MCP client from Chapter 9 |
-| `atlas_v7.py` | RAG pipeline from Chapter 8 |
-| `atlas_v6.py` | Agent loop from Chapter 7 |
-| `atlas_v5.py` | Tool infrastructure from Chapter 6 |
+| `tests/conftest.py` | Pytest plugin with eval tracking and pass-rate gating |
+| `tests/eval_suite.py` | Parametrized eval runner |
+| `tests/eval_cases.json` | 20 eval cases (tool selection, guardrails, regression) |
+| `.github/workflows/eval.yml` | CI workflow for eval automation |
 
 ## Acceptance Test
 
 ```bash
-python atlas_multi.py "Find how asyncio.gather works and write a working Python example with three concurrent tasks"
+pytest tests/eval_suite.py -v --min-pass-rate 0.85
+# Verify pass rate >= 85%
+cat eval_results.json
 ```
-
-Verify:
-- Researcher retrieves documentation with source URLs
-- Coder generates runnable asyncio example
-- Output includes both explanation and working code
 
 ## Next Chapter
 
-Chapter 11: Evaluation and Testing — `git checkout ch11`
+Chapter 12: Going to Production — `git checkout ch12`
