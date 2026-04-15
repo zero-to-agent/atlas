@@ -1,14 +1,16 @@
-# Atlas — Chapter 11: Evaluation and Testing
+# Atlas — Chapter 12: Going to Production
 
 > From **Zero to Agent: From First API Call to Production AI Agents**
 
 ## What Atlas can do at this point
 
-- All capabilities from Chapters 2-10
-- Run a reproducible eval suite of 20 named cases
-- Assert on tool selection, forbidden tools, and guardrail compliance
-- Gate merges in CI when pass rate drops below 85%
-- Export eval results as JSON artifacts for trending
+- All capabilities from Chapters 2-11
+- Serve as a production HTTP service via FastAPI
+- Structured JSON logging for every LLM call
+- Cost accounting persisted to SQLite with budget alerts
+- Prompt caching, response caching, and model routing
+- Rate limiting, circuit breaker, and retry with backoff
+- PII redaction and prompt injection defense
 
 ## Prerequisites
 
@@ -22,26 +24,35 @@ python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env       # Add your API keys
-pytest tests/eval_suite.py -v --min-pass-rate 0.85
+uvicorn atlas_service:app --reload
 ```
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `tests/conftest.py` | Pytest plugin with eval tracking and pass-rate gating |
-| `tests/eval_suite.py` | Parametrized eval runner |
-| `tests/eval_cases.json` | 20 eval cases (tool selection, guardrails, regression) |
-| `.github/workflows/eval.yml` | CI workflow for eval automation |
+| `atlas_service.py` | FastAPI app with /chat, /health, /cost-today endpoints |
+| `tests/` | Eval framework from Chapter 11 |
+| `atlas_multi.py` | Multi-agent system from Chapter 10 |
 
 ## Acceptance Test
 
 ```bash
-pytest tests/eval_suite.py -v --min-pass-rate 0.85
-# Verify pass rate >= 85%
-cat eval_results.json
+# Start the server
+uvicorn atlas_service:app &
+
+# Test chat endpoint
+curl -X POST http://localhost:8000/chat \
+  -H "Content-Type: application/json" \
+  -d '{"message": "What is Python?"}'
+
+# Check health
+curl http://localhost:8000/health
+
+# Check cost
+curl http://localhost:8000/cost-today
 ```
 
 ## Next Chapter
 
-Chapter 12: Going to Production — `git checkout ch12`
+Chapter 13: The AI-Native Developer — `git checkout ch13`
