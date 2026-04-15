@@ -1,21 +1,20 @@
-# Atlas — Chapter 7: The Agent Loop
+# Atlas — Chapter 8: RAG: Giving Your Agent Knowledge
 
 > From **Zero to Agent: From First API Call to Production AI Agents**
 
 ## What Atlas can do at this point
 
-- All capabilities from Chapters 2-6
-- Take a goal and work autonomously toward completing it
-- Generate a numbered plan before taking action
-- Execute multiple tool calls across iterations
-- Stop safely on: completion, timeout, budget, max iterations, or approval denial
-- Optionally require human approval for write and execute operations
+- All capabilities from Chapters 2-7
+- Index a local corpus of source files into ChromaDB
+- Retrieve relevant chunks via embedding similarity search
+- Generate answers grounded in retrieved context with source citations
+- Avoid hallucinating facts not present in the indexed documents
 
 ## Prerequisites
 
 - Python 3.11+
 - [Anthropic API key](https://console.anthropic.com/)
-- [Tavily API key](https://tavily.com/) (optional, for web search)
+- [OpenAI API key](https://platform.openai.com/) (for embeddings)
 
 ## Quick Start
 
@@ -24,14 +23,17 @@ python3 -m venv .venv
 source .venv/bin/activate  # Windows: .venv\Scripts\activate
 pip install -r requirements.txt
 cp .env.example .env       # Add your API keys
-python atlas_v6.py "Research the top 3 Python HTTP libraries and write a comparison to comparison.md"
+python atlas_v7.py
+# Then type: what does the authenticate() function do?
 ```
 
 ## Files
 
 | File | Description |
 |------|-------------|
-| `atlas_v6.py` | Autonomous agent loop with planning, guardrails, approval gates |
+| `atlas_v7.py` | RAG pipeline: indexing, retrieval, cited generation |
+| `sample_corpus/` | Sample Python project (~15 files) for RAG indexing |
+| `atlas_v6.py` | Agent loop from Chapter 7 |
 | `atlas_v5.py` | Tool infrastructure from Chapter 6 |
 | `atlas_v4.py` | Structured output from Chapter 5 |
 | `atlas_v3.py` | Conversation REPL from Chapter 4 |
@@ -41,16 +43,12 @@ python atlas_v6.py "Research the top 3 Python HTTP libraries and write a compari
 ## Acceptance Test
 
 ```bash
-python atlas_v6.py "Research the top 3 Python HTTP libraries and write a comparison to comparison.md"
-cat workspace/comparison.md
+python atlas_v7.py
+# Ask: what does the authenticate() function do?
+# Verify: answer cites auth.py with correct line range
+# Verify: answer mentions API key validation and boolean return
 ```
-
-Verify:
-- Atlas creates a numbered plan before its first tool call
-- Performs 2-3 web searches
-- Writes `comparison.md`
-- Stops with TASK_COMPLETE signal
 
 ## Next Chapter
 
-Chapter 8: RAG: Giving Your Agent Knowledge — `git checkout ch08`
+Chapter 9: MCP: Connecting to Everything — `git checkout ch09`
