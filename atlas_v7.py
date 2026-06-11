@@ -62,11 +62,15 @@ def load_documents(corpus_dir: str) -> list[dict]:
 
 def chunk_text_fixed(text: str, chunk_size: int = 500, overlap: int = 50) -> list[dict]:
     """Split text into fixed-size character chunks with overlap."""
+    if overlap >= chunk_size:
+        raise ValueError("overlap must be smaller than chunk_size")
     chunks = []
     start = 0
     while start < len(text):
         end = start + chunk_size
         chunks.append({"text": text[start:end], "start_char": start})
+        if end >= len(text):
+            break  # avoid a trailing chunk fully contained in the previous one
         start = end - overlap
     return chunks
 
