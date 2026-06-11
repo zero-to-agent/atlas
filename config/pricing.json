@@ -1,0 +1,6 @@
+{
+  "_frozen": "2026-04-15 — verify current rates at https://www.anthropic.com/pricing",
+  "claude-sonnet-4-6": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
+  "claude-haiku-4-5-20251001": {"input": 1.00, "output": 5.00, "cache_read": 0.10, "cache_write": 1.25},
+  "claude-opus-4-7": {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25}
+}

@@ -1,0 +1,31 @@
+diff --git a/app/users.py b/app/users.py
+index 3f1a2b4..9c8d7e1 100644
+--- a/app/users.py
++++ b/app/users.py
+@@ -12,10 +12,14 @@ def get_user(db, user_id):
+-    cursor = db.execute("SELECT * FROM users WHERE id = ?", (user_id,))
+-    return cursor.fetchone()
++    cursor = db.execute("SELECT * FROM users WHERE id = ?", (user_id,))
++    row = cursor.fetchone()
++    if row is None:
++        raise KeyError(f"user {user_id} not found")
++    return row
+
+
+ def list_users(db, limit=50):
+-    cursor = db.execute("SELECT * FROM users ORDER BY created_at")
++    cursor = db.execute(
++        "SELECT * FROM users ORDER BY created_at DESC LIMIT ?", (limit,)
++    )
+     return cursor.fetchall()
+diff --git a/app/api.py b/app/api.py
+index 8e2c1d0..5b4f3a2 100644
+--- a/app/api.py
++++ b/app/api.py
+@@ -30,7 +30,7 @@ def user_endpoint(request):
+     user_id = request.params["id"]
+-    user = get_user(db, user_id)
+-    if user is None:
+-        return error_response(404, "not found")
++    user = get_user(db, user_id)
+     return json_response(user)

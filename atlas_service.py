@@ -16,6 +16,7 @@ import random
 import hashlib
 import logging
 import sqlite3
+from pathlib import Path
 from datetime import datetime, timezone
 from collections import defaultdict
 
@@ -97,8 +98,14 @@ def get_today_cost() -> float:
 PRICING = {
     "claude-sonnet-4-6": {"input": 3.00, "output": 15.00, "cache_read": 0.30, "cache_write": 3.75},
     "claude-haiku-4-5-20251001": {"input": 1.00, "output": 5.00, "cache_read": 0.10, "cache_write": 1.25},
-    "claude-opus-4-6": {"input": 15.00, "output": 75.00, "cache_read": 1.50, "cache_write": 18.75},
+    "claude-opus-4-7": {"input": 5.00, "output": 25.00, "cache_read": 0.50, "cache_write": 6.25},
 }
+
+# Production rule (Chapter 12): never ship hardcoded prices. The dict above is
+# a frozen 2026-04-15 fallback; real rates load from config/pricing.json.
+_PRICING_FILE = Path(__file__).parent / "config" / "pricing.json"
+if _PRICING_FILE.exists():
+    PRICING.update(json.loads(_PRICING_FILE.read_text(encoding="utf-8")))
 
 def estimate_cost(model: str, usage) -> float:
     p = PRICING.get(model, PRICING["claude-sonnet-4-6"])
@@ -116,7 +123,8 @@ def estimate_cost(model: str, usage) -> float:
 PII_PATTERNS = [
     (re.compile(r"[a-zA-Z0-9_.+-]+@[a-zA-Z0-9-]+\.[a-zA-Z0-9-.]+"), "[EMAIL_REDACTED]"),
     (re.compile(r"\b\d{3}[-.]?\d{3}[-.]?\d{4}\b"), "[PHONE_REDACTED]"),
-    (re.compile(r"(?:sk-|AKIA|ghp_|xox[bpsa]-)[A-Za-z0-9_\-]{20,}"), "[SECRET_REDACTED]"),
+    (re.compile(r"\bAKIA[A-Z0-9]{16}\b"), "[SECRET_REDACTED]"),
+    (re.compile(r"(?:sk-|ghp_|xox[bpsa]-)[A-Za-z0-9_\-]{20,}"), "[SECRET_REDACTED]"),
 ]
 
 def redact_pii(text: str) -> str:
@@ -134,7 +142,8 @@ def check_injection(text: str) -> bool:
     return any(p.search(text) for p in INJECTION_PATTERNS)
 
 BLOCKED_OUTPUT_PATTERNS = [
-    re.compile(r"(?:sk-|AKIA|ghp_)[A-Za-z0-9_\-]{20,}"),
+    re.compile(r"\bAKIA[A-Z0-9]{16}\b"),
+    re.compile(r"(?:sk-|ghp_)[A-Za-z0-9_\-]{20,}"),
     re.compile(r"DROP\s+TABLE|DELETE\s+FROM", re.IGNORECASE),
 ]
 
