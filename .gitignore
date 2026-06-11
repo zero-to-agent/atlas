@@ -8,5 +8,6 @@ tool_log.jsonl
 *.egg-info/
 eval_results.json
 session.json
-workspace/
+workspace/*
+!workspace/research_notes.md
 comparison.md
