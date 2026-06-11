@@ -9,7 +9,7 @@ def parse_args():
     parser = argparse.ArgumentParser(description="Atlas v1 — first Claude API call")
     parser.add_argument("prompt", nargs="?", default="Say hello and introduce yourself in two sentences.")
     parser.add_argument("--model", default="claude-sonnet-4-6",
-                        help="Model to use (e.g. claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-6)")
+                        help="Model to use (e.g. claude-haiku-4-5-20251001, claude-sonnet-4-6, claude-opus-4-7)")
     parser.add_argument("--max-tokens", type=int, default=1024)
     parser.add_argument("--daily-budget", type=float, default=5.00,
                         help="Daily budget in USD for cost warnings")
@@ -32,8 +32,10 @@ def estimate_cost(usage, model="claude-sonnet-4-6"):
     pricing = {
         "claude-haiku-4-5-20251001":  {"input": 1.00 / 1_000_000, "output": 5.00 / 1_000_000},
         "claude-sonnet-4-6":   {"input": 3.00 / 1_000_000, "output": 15.00 / 1_000_000},
-        "claude-opus-4-6":     {"input": 5.00 / 1_000_000, "output": 25.00 / 1_000_000},
+        "claude-opus-4-7":     {"input": 5.00 / 1_000_000, "output": 25.00 / 1_000_000},
     }
+    if model not in pricing:
+        print(f"WARNING: no pricing entry for {model}; using Sonnet rates.", file=sys.stderr)
     rates = pricing.get(model, pricing["claude-sonnet-4-6"])
     input_cost = usage.input_tokens * rates["input"]
     output_cost = usage.output_tokens * rates["output"]
@@ -60,8 +62,8 @@ def stream_response(client, model, max_tokens, prompt):
     ) as stream:
         for text in stream.text_stream:
             print(text, end="", flush=True)
+        response = stream.get_final_message()
 
-    response = stream.get_final_message()
     print()  # newline after streamed text
     return response
 

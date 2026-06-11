@@ -38,7 +38,7 @@ def _estimate_cost(usage, model: str = "claude-sonnet-4-6") -> float:
     pricing = {
         "claude-haiku-4-5-20251001": {"input": 1.0 / 1_000_000, "output": 5.0 / 1_000_000},
         "claude-sonnet-4-6": {"input": 3.0 / 1_000_000, "output": 15.0 / 1_000_000},
-        "claude-opus-4-6": {"input": 5.0 / 1_000_000, "output": 25.0 / 1_000_000},
+        "claude-opus-4-7": {"input": 5.0 / 1_000_000, "output": 25.0 / 1_000_000},
     }
     rates = pricing.get(model, pricing["claude-sonnet-4-6"])
     return usage.input_tokens * rates["input"] + usage.output_tokens * rates["output"]

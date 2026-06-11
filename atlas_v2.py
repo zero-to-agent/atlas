@@ -118,12 +118,13 @@ def reasoning_comparison(task: str) -> None:
     start = time.time()
     msg = client.messages.create(
         model=MODEL, max_tokens=4096,
+        system=ATLAS_SYSTEM_PROMPT_V2,
         thinking={"type": "enabled", "budget_tokens": 2000},
         messages=[{"role": "user", "content": task}],
     )
     think_time = time.time() - start
     think_answer = next(b.text for b in msg.content if b.type == "text").strip()
-    print(f"Thinking | {think_time:.1f}s | {msg.usage.output_tokens} out tokens")
+    print(f"Thinking | {think_time:.1f}s | {msg.usage.output_tokens} out tokens (includes internal reasoning)")
     print(f"  Answer: {think_answer[:200]}")
 
 
